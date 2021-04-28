@@ -1,0 +1,111 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+library(tidyr)
+```
+
+
+```{r}
+library(readr)
+```
+
+
+```{r}
+library(dplyr)
+```
+
+
+```{r}
+precint_president = read_csv("2016-precinct-president.csv")
+```
+
+
+```{r}
+house_of_rep_data = read_csv("1976-2018-house3.csv")
+```
+
+
+```{r}
+precint_president
+```
+
+
+
+
+
+```{r}
+precint_president = precint_president%>%
+  group_by(county_name) %>%
+    summarize(hillary=votes[1]>votes[4], county_long = first(county_long), county_lat=first(county_lat))
+precint_president
+```
+
+
+
+```{r}
+# k = x %>% 
+#   group_by(jurisdiction) %>%
+#     summarize(t = n())
+# head(k,2000)
+```
+
+
+```{r}
+zipLongLat = read.csv("us-zip-code-latitude-and-longitude.csv", sep=';')
+zipLongLat$Latitude = round(kf$Latitude, 0)
+zipLongLat$Longitude = round(kf$Longitude, 0)
+precint_president$county_long = round(g$county_long,0)
+precint_president$county_lat = round(g$county_lat, 0)
+# kf <- kf %>%
+#   group_by(Longitude, Latitude) %>%
+#     summarize(zip=list(Zip), names = list(county))
+length(row.names(kf))
+```
+
+
+
+```{r}
+precint_president = precint_president %>%
+  inner_join(zipLongLat, by=c("county_lat"="Latitude", "county_long"="Longitude"))
+precint_president <- precint_president %>%
+  group_by(Zip) %>%
+    summarize(hillary = first(hillary))
+```
+
+
+```{r}
+schools <- read_csv("Private_Schools.csv")
+substring="CATHOLIC|CHRISTIAN"
+schools <- schools %>%
+  mutate(catholic = grepl(substring,schools$NAME)) %>%
+    filter(catholic == FALSE)
+final <- schools %>%
+  inner_join(precint_president, by=c("ZIP"="Zip"))
+
+```
+
+
+```{r}
+#Learn to use APPLY
+#lf$NAME[lf$STATE =="AL"]
+```
+
+
+```{r}
+final %>%
+  group_by(hillary) %>%
+    summarize(numOfschools = sum(ENROLLMENT))
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
